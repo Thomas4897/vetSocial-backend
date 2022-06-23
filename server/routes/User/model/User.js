@@ -38,6 +38,10 @@ const UserSchema = new mongoose.Schema({
         required: true
     },
 
+    friends: [{
+        type: String
+    }],
+
     postHistory: [{
         type: mongoose.Schema.ObjectId,
         ref: "post"

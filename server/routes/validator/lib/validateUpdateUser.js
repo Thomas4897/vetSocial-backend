@@ -1,7 +1,7 @@
-const { isAlpha, isAlphanumeric, isEmail, isStrongPassword } = require('validator')
+const { isAlpha, isAlphanumeric, isStrongPassword } = require('validator')
 
-const validateCreateUser = (req, res, next) => {
-    const { firstName, lastName, username, email, password } = req.body
+const validateUpdateUser = (req, res, next) => {
+    const { firstName, lastName, username, password, confirmPassword } = req.body
     let errObj = {}
 
     if(!isAlpha(firstName)) {
@@ -11,15 +11,15 @@ const validateCreateUser = (req, res, next) => {
         errObj.lastName = "Last name cannot include numbers or special characters!"
     }
     if(!isAlphanumeric(username)) {
-        errObj.username = "Username cannot include any special characters!"
-    }
-    if(!isEmail(email)) {
-        errObj.email = "Email is not in correct format!"
+        errObj.username = "Username cannot have any special characters!"
     }
     if(!isStrongPassword(password)) {
         errObj.password = "Password must contain a minimum of 1 number, 1 uppercase letter, 1 lowercase letter, 1 special character and 8 characters in length!"
     }
-
+    if(password !== confirmPassword) {
+        errObj.confirmPassword = "Password and confirm password do not match!"
+    }
+    
     let checkObj = Object.keys(errObj)
 
     if(checkObj.length > 0) {
@@ -31,5 +31,5 @@ const validateCreateUser = (req, res, next) => {
 }
 
 module.exports = {
-    validateCreateUser
+    validateUpdateUser
 }
