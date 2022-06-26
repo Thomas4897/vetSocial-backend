@@ -4,15 +4,14 @@ const Comment = require('../../Comment/model/Comment')
 
 // Create post
 const createPost = async (req, res) => {
-    const decodedToken = res.locals.decodedToken
-    const { title, post } = req.body
+    const { id } = req.params
+    const { post } = req.body
 
     try {
-        const foundUser = await User.findOne({ email: decodedToken.email })
+        const foundUser = await User.findById(id)
         if(!foundUser) throw { message: "User not found!" }
 
         const newPost = new Post({
-            title: title,
             post: post,
             postOwner: foundUser._id
         })
@@ -41,13 +40,12 @@ const getAllPosts = async (req, res) => {
 
 // Update post
 const updatePost = async (req, res) => {
-    const decodedToken = res.locals.decodedToken
-    const { id } = req.params
+    const { postId, userId } = req.params
     
     try {
-        const foundPost = await Post.findById(id).populate("postOwner", "username")
+        const foundPost = await Post.findById(postId).populate("postOwner", "username")
         if(!foundPost) throw { message: "Post not found!" }
-        const foundUser = await User.findOne({ email: decodedToken.email })
+        const foundUser = await User.findById(userId)
         if(!foundUser) throw { message: "User not found!" }
 
         if(foundUser._id.toString() === foundPost.postOwner._id.toString()) {
@@ -66,13 +64,12 @@ const updatePost = async (req, res) => {
 
 // Delete post
 const deletePost = async (req, res) => {
-    const decodedToken = res.locals.decodedToken
-    const { id } = req.params
+    const { postId, userId } = req.params
 
     try {
-        const foundPost = await Post.findById(id).populate("postOwner", "username")
+        const foundPost = await Post.findById(postId).populate("postOwner", "username")
         if(!foundPost) throw { message: "Post not found!" }
-        const foundUser = await User.findOne({ email: decodedToken.email })
+        const foundUser = await User.findById(userId)
         if(!foundUser) throw { message: "User not found!" }
 
         if(foundUser._id.toString() === foundPost.postOwner._id.toString()) {

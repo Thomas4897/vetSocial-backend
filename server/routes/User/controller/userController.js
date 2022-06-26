@@ -5,7 +5,7 @@ const { errorHandler } = require('../../validator/utils/errorHandler')
 
 // Create user
 const createUser = async (req, res) => {
-    const { firstName, lastName, username, email, password, address } = req.body
+    const { firstName, lastName, username, email, password, address, branch } = req.body
 
     try {
         let salt = await bcrypt.genSalt(10)
@@ -16,6 +16,7 @@ const createUser = async (req, res) => {
             lastName: lastName,
             username: username,
             email: email,
+            branch: branch,
             password: hashPassword,
             address: address
         })
@@ -30,7 +31,7 @@ const createUser = async (req, res) => {
 
 //Update user
 const updateUser = async (req, res) => {
-    const decodedToken = res.locals.decodedToken
+    const { id } = req.params
     let { password } = req.body
 
     try {
@@ -38,7 +39,7 @@ const updateUser = async (req, res) => {
         const hashPassword = await bcrypt.hash(password, salt)
         password = hashPassword
 
-        const updateUser = await User.findOneAndUpdate({ email: decodedToken.email }, req.body, { new: true })
+        const updateUser = await User.findOneAndUpdate(id, req.body, { new: true })
         if(updateUser === null) throw new Error("No user with id found!")
         res.status(200).json({ message: "Updated user", payload: updateUser })
     }
@@ -50,9 +51,10 @@ const updateUser = async (req, res) => {
 
 // Get current user
 const getCurrentUser = async (req, res) => {
-    const decodedToken = res.locals.decodedToken
+    const { id } = req.params
+
     try {
-        const foundUser = await User.findOne({ email: decodedToken.email })
+        const foundUser = await User.findById(id)
         res.status(200).json({ message: "Current user", payload: foundUser })
     }
     catch (err) {
@@ -91,7 +93,7 @@ const deleteUser = async (req, res) => {
 // Login user
 const userLogin = async (req, res) => {
     const { email, password } = req.body
-
+    
     try {
         const foundUser = await User.findOne({ email: email })
         if(foundUser === null) throw { message: "Email not found!" }
@@ -108,7 +110,7 @@ const userLogin = async (req, res) => {
             process.env.SECRET_KEY,
             { expiresIn: "12h" }
         )
-        res.status(200).json({ message: "User is logged in",  payload: jwtToken })
+        res.status(200).json({ message: "User is logged in",  payload: foundUser })
     }
     catch (err) {
         console.log(err)
