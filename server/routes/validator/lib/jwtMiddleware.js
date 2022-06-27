@@ -13,8 +13,8 @@ const jwtMiddleware = async (req, res, next) => {
             throw { message: "You dont have permission!" }
         }
     }
-    catch (error) {
-        res.status(500).json({ error: error.message })
+    catch (err) {
+        res.status(500).json({ error: err.message })
     }
 
 }

@@ -100,11 +100,18 @@ const userLogin = async (req, res) => {
         if(!comparedPassword) throw { mesaage: "Password does not match!" }
 
         const jwtToken = jwt.sign({
+            _id: foundUser._id,
             firstName: foundUser.firstName,
             lastName: foundUser.lastName,
-            email: foundUser.email,
             username: foundUser.username,
-            address: foundUser.address
+            email: foundUser.email,
+            profilePicture: foundUser.profilePicture,
+            address: foundUser.address,
+            branch: foundUser.branch,
+            friends: foundUser.friends,
+            postHistory: foundUser.postHistory,
+            commentHistory: foundUser.commentHistory,
+            iat: Date.now()
         },
             process.env.SECRET_KEY,
             { expiresIn: "12h" }
