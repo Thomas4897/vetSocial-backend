@@ -29,7 +29,7 @@ const createPost = async (req, res) => {
 // Get all posts
 const getAllPosts = async (req, res) => {
     try {
-        const foundPosts = await Post.find().populate("postOwner", "username")
+        const foundPosts = await Post.find().populate("postOwner")
         res.status(200).json({ posts: foundPosts })
     }
     catch (err) {
@@ -44,7 +44,7 @@ const updatePost = async (req, res) => {
     const { id } = req.params
 
     try {
-        const foundPost = await Post.findById(id).populate("postOwner", "username")
+        const foundPost = await Post.findById(id).populate("postOwner")
         if(!foundPost) throw { message: "Post not found!" }
         const foundUser = await User.findOne({ email: decodedToken.email })
         if(!foundUser) throw { message: "User not found!" }
@@ -69,7 +69,7 @@ const deletePost = async (req, res) => {
     const { id } = req.params
 
     try {
-        const foundPost = await Post.findById(id).populate("postOwner", "username")
+        const foundPost = await Post.findById(id).populate("postOwner")
         if(!foundPost) throw { message: "Post not found!" }
         const foundUser = await User.findOne({ email: decodedToken.email })
         if(!foundUser) throw { message: "User not found!" }

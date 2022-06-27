@@ -54,7 +54,7 @@ const updateComment = async (req, res) => {
     const { id } = req.params
 
     try {
-        const foundComment = await Comment.findById(id)
+        const foundComment = await Comment.findById(id).populate("commentOwner")
         if(!foundComment) throw { message: "Comment not found" }
         const foundUser = await User.findOne({ email: decodedToken.email })
         if(!foundUser) throw { message: "User not found" }
@@ -82,7 +82,7 @@ const deleteComment = async (req, res) => {
         const foundComment = await Comment.findById(id)
         if(!foundComment) throw { message: "Comment not found" }
         const deletedComment = await Comment.findByIdAndDelete(id)
-        if(!deleteComment) throw { message: "Comment not found" }
+        if(!deletedComment) throw { message: "Comment not found" }
         const foundPost = await Post.findById(deletedComment.post)
         if(!foundPost) throw { message: "Post not found" }
         const foundUser = await User.findOne({ email: decodedToken.email })
