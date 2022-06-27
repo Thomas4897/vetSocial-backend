@@ -52,9 +52,8 @@ const updateUser = async (req, res) => {
 // Get current user
 const getCurrentUser = async (req, res) => {
     const decodedToken = res.locals.decodedToken
-
     try {
-        const foundUser = await User.findOne({ email: decodedToken.email }).populate({path: "postHistory", populate: {path: "postOwner"}})
+        const foundUser = await User.findOne({ email: decodedToken.email })
         res.status(200).json({ message: "Current user", payload: foundUser })
     }
     catch (err) {
@@ -93,7 +92,7 @@ const deleteUser = async (req, res) => {
 // Login user
 const userLogin = async (req, res) => {
     const { email, password } = req.body
-    
+
     try {
         const foundUser = await User.findOne({ email: email })
         if(foundUser === null) throw { message: "Email not found!" }
@@ -125,4 +124,4 @@ module.exports = {
     getAllUsers,
     deleteUser,
     userLogin
-}
+} 

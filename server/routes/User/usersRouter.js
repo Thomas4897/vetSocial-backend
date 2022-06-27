@@ -13,6 +13,6 @@ router.put('/update-user', checkIsEmpty, validateUpdateUser, jwtMiddleware, upda
 router.get('/current-user', jwtMiddleware, getCurrentUser)
 router.get('/all-users', getAllUsers)
 router.delete('/delete-user/:id', deleteUser)
-router.post('/login', checkIsEmpty, validateLogin, jwtMiddleware, userLogin)
+router.post('/login', checkIsEmpty, validateLogin, userLogin)
 
 module.exports = router

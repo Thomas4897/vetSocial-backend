@@ -5,7 +5,7 @@ const Comment = require('../../Comment/model/Comment')
 // Create post
 const createPost = async (req, res) => {
     const decodedToken = res.locals.decodedToken
-    const { post } = req.body
+    const { title, post } = req.body
 
     try {
         const foundUser = await User.findOne({ email: decodedToken.email })
@@ -38,31 +38,15 @@ const getAllPosts = async (req, res) => {
     }
 }
 
-// Get all posts from user
-const getPostsByUser = async (req, res) => {
-    const decodedToken = res.locals.decodedToken
-
-    try {
-        const foundUser =  await User.findOne({ email: decodedToken.email })
-        if(!foundUser) throw { message: "User not found!" }
-        const foundPosts = await Post.find().populate("postOwner", "username")
-        res.status(200).json({ posts: foundPosts })
-    }
-    catch (err) {
-        console.log(err)
-        res.status(500).json({ message: "error", error: err.message })
-    }
-}
-
 // Update post
 const updatePost = async (req, res) => {
-    const { id } = req.params
     const decodedToken = res.locals.decodedToken
-    
+    const { id } = req.params
+
     try {
         const foundPost = await Post.findById(id).populate("postOwner", "username")
         if(!foundPost) throw { message: "Post not found!" }
-        const foundUser =  await User.findOne({ email: decodedToken.email })
+        const foundUser = await User.findOne({ email: decodedToken.email })
         if(!foundUser) throw { message: "User not found!" }
 
         if(foundUser._id.toString() === foundPost.postOwner._id.toString()) {
@@ -87,7 +71,7 @@ const deletePost = async (req, res) => {
     try {
         const foundPost = await Post.findById(id).populate("postOwner", "username")
         if(!foundPost) throw { message: "Post not found!" }
-        const foundUser =  await User.findOne({ email: decodedToken.email })
+        const foundUser = await User.findOne({ email: decodedToken.email })
         if(!foundUser) throw { message: "User not found!" }
 
         if(foundUser._id.toString() === foundPost.postOwner._id.toString()) {
@@ -123,6 +107,5 @@ module.exports = {
     createPost,
     getAllPosts,
     updatePost,
-    deletePost,
-    getPostsByUser
-}
+    deletePost
+} 

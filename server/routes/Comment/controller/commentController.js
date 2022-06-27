@@ -4,14 +4,14 @@ const User = require('../../User/model/User')
 
 // Create comment
 const createComment = async (req, res) => {
+    const decodedToken = res.locals.decodedToken
     const { comment } = req.body
     const { id } = req.params
-    const decodedToken = res.locals.decodedToken
 
     try {
         const foundPost = await Post.findById(id)
         if(!foundPost) throw { message: "Post not found" }
-        const foundUser =  await User.findOne({ email: decodedToken.email })
+        const foundUser = await User.findOne({ email: decodedToken.email })
         if(!foundUser) throw { message: "User not found" }
 
         const newComment = new Comment({
@@ -32,14 +32,14 @@ const createComment = async (req, res) => {
     }
 }
 
-// Get comments from user
-const getUserComments = async (req, res) => {
+// Get all comments
+const getAllComments = async (req, res) => {
     const decodedToken = res.locals.decodedToken
 
     try {
         const foundUser = await User.findOne({ email: decodedToken.email })
         if(!foundUser) throw { message: "User not found!" }
-        const foundComments = await Comment.find({ commentOwner: foundUser._id })
+        const foundComments = await Comment.find({ commentOwner: foundUser._id }).populate("commentOwner")
         res.status(200).json({ payload: foundComments })
     }
     catch (err) {
@@ -50,13 +50,13 @@ const getUserComments = async (req, res) => {
 
 // Update comment
 const updateComment = async (req, res) => {
-    const { id } = req.params
     const decodedToken = res.locals.decodedToken
+    const { id } = req.params
 
     try {
         const foundComment = await Comment.findById(id)
         if(!foundComment) throw { message: "Comment not found" }
-        const foundUser =  await User.findOne({ email: decodedToken.email })
+        const foundUser = await User.findOne({ email: decodedToken.email })
         if(!foundUser) throw { message: "User not found" }
 
         if(foundComment.commentOwner._id.toString() === foundUser._id.toString()) {
@@ -75,17 +75,17 @@ const updateComment = async (req, res) => {
 
 // Delete comment
 const deleteComment = async (req, res) => {
-    const { id } = req.params
     const decodedToken = res.locals.decodedToken
+    const { id } = req.params
 
     try {
         const foundComment = await Comment.findById(id)
         if(!foundComment) throw { message: "Comment not found" }
-        const deletedComment = await Comment.findByIdAndDelete(commentId)
-        if(!deletedComment) throw { message: "Comment not found" }
+        const deletedComment = await Comment.findByIdAndDelete(id)
+        if(!deleteComment) throw { message: "Comment not found" }
         const foundPost = await Post.findById(deletedComment.post)
         if(!foundPost) throw { message: "Post not found" }
-        const foundUser =  await User.findOne({ email: decodedToken.email })
+        const foundUser = await User.findOne({ email: decodedToken.email })
         if(!foundUser) throw { message: "User not found" }
 
         if(foundComment.commentOwner._id.toString() === foundUser._id.toString()) {
@@ -107,7 +107,7 @@ const deleteComment = async (req, res) => {
 
 module.exports = {
     createComment,
-    getUserComments,
+    getAllComments,
     updateComment,
     deleteComment
-}
+} 

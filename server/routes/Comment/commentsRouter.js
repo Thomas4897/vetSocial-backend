@@ -1,6 +1,6 @@
 const express = require('express')
 const router = express.Router()
-const { createComment, getUserComments, updateComment, deleteComment } = require('./controller/commentController')
+const { createComment, getAllComments, updateComment, deleteComment } = require('./controller/commentController')
 const { checkIsEmpty, jwtMiddleware } = require('../validator/lib/index')
 
 /* GET users listing. */
@@ -9,8 +9,8 @@ router.get('/', function(req, res, next) {
 })
 
 router.post('/create-comment/:id', checkIsEmpty, jwtMiddleware, createComment)
-router.get('/all-comments/', jwtMiddleware, getUserComments)
-router.put('/update-comment/:id', jwtMiddleware, checkIsEmpty, updateComment)
+router.get('/all-comments', jwtMiddleware, getAllComments)
+router.put('/update-comment/:id', checkIsEmpty, jwtMiddleware, updateComment)
 router.delete('/delete-comment/:id', checkIsEmpty, jwtMiddleware, deleteComment)
 
 module.exports = router
