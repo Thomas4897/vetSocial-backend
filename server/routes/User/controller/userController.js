@@ -31,7 +31,7 @@ const createUser = async (req, res) => {
 
 //Update user
 const updateUser = async (req, res) => {
-    const { id } = req.params
+    const decodedToken = res.locals.decodedToken
     let { password } = req.body
 
     try {
@@ -39,7 +39,7 @@ const updateUser = async (req, res) => {
         const hashPassword = await bcrypt.hash(password, salt)
         password = hashPassword
 
-        const updateUser = await User.findOneAndUpdate(id, req.body, { new: true })
+        const updateUser = await User.findOneAndUpdate({ email: decodedToken.email }, req.body, { new: true })
         if(updateUser === null) throw new Error("No user with id found!")
         res.status(200).json({ message: "Updated user", payload: updateUser })
     }
@@ -51,10 +51,10 @@ const updateUser = async (req, res) => {
 
 // Get current user
 const getCurrentUser = async (req, res) => {
-    const { id } = req.params
+    const decodedToken = res.locals.decodedToken
 
     try {
-        const foundUser = await User.findById(id)
+        const foundUser = await User.findOne({ email: decodedToken.email }).populate({path: "postHistory", populate: {path: "postOwner"}})
         res.status(200).json({ message: "Current user", payload: foundUser })
     }
     catch (err) {
@@ -110,7 +110,7 @@ const userLogin = async (req, res) => {
             process.env.SECRET_KEY,
             { expiresIn: "12h" }
         )
-        res.status(200).json({ message: "User is logged in",  payload: foundUser })
+        res.status(200).json({ message: "User is logged in",  payload: jwtToken })
     }
     catch (err) {
         console.log(err)
