@@ -1,6 +1,6 @@
 const express = require('express')
 const router = express.Router()
-const { createPost, getAllPosts, updatePost, deletePost, getPostsByUser } = require('./controller/postController')
+const { createPost, getAllPosts, updatePost, deletePost } = require('./controller/postController')
 const { checkIsEmpty, jwtMiddleware } = require('../validator/lib/index')
 
 /* GET users listing. */

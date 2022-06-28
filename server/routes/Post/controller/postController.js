@@ -5,10 +5,12 @@ const Comment = require('../../Comment/model/Comment')
 // Create post
 const createPost = async (req, res) => {
     const decodedToken = res.locals.decodedToken
-    const { title, post } = req.body
+    // const { id } = req.params
+    const { post } = req.body
 
     try {
-        const foundUser = await User.findOne({ email: decodedToken.email })
+        const foundUser = await User.findOne({ _id: decodedToken._id })
+        // const foundUser = await User.findById(id)
         if(!foundUser) throw { message: "User not found!" }
 
         const newPost = new Post({

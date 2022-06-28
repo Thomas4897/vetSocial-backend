@@ -32,6 +32,7 @@ const createUser = async (req, res) => {
 //Update user
 const updateUser = async (req, res) => {
     const decodedToken = res.locals.decodedToken
+    // const { id } = req.params
     let { password } = req.body
 
     try {
@@ -40,6 +41,7 @@ const updateUser = async (req, res) => {
         password = hashPassword
 
         const updateUser = await User.findOneAndUpdate({ email: decodedToken.email }, req.body, { new: true })
+        // const updateUser = await User.findOneAndUpdate(id, req.body, { new: true })
         if(updateUser === null) throw new Error("No user with id found!")
         res.status(200).json({ message: "Updated user", payload: updateUser })
     }
@@ -52,8 +54,11 @@ const updateUser = async (req, res) => {
 // Get current user
 const getCurrentUser = async (req, res) => {
     const decodedToken = res.locals.decodedToken
+    // const { id } = req.params
+
     try {
         const foundUser = await User.findOne({ email: decodedToken.email })
+        // const foundUser = await User.findById(id)
         res.status(200).json({ message: "Current user", payload: foundUser })
     }
     catch (err) {
@@ -94,29 +99,21 @@ const userLogin = async (req, res) => {
     const { email, password } = req.body
 
     try {
-        const foundUser = await User.findOne({ email: email })
+        const foundUser = await User.findOne({ email: email }).populate('postHistory')
         if(foundUser === null) throw { message: "Email not found!" }
         const comparedPassword = await bcrypt.compare(password, foundUser.password)
         if(!comparedPassword) throw { mesaage: "Password does not match!" }
 
         const jwtToken = jwt.sign({
             _id: foundUser._id,
-            firstName: foundUser.firstName,
-            lastName: foundUser.lastName,
-            username: foundUser.username,
-            email: foundUser.email,
-            profilePicture: foundUser.profilePicture,
-            address: foundUser.address,
-            branch: foundUser.branch,
-            friends: foundUser.friends,
-            postHistory: foundUser.postHistory,
-            commentHistory: foundUser.commentHistory,
             iat: Date.now()
         },
             process.env.SECRET_KEY,
             { expiresIn: "12h" }
         )
-        res.status(200).json({ message: "User is logged in",  payload: jwtToken })
+
+        res.status(200).json({ message: "User is logged in",  payload: foundUser, token: jwtToken })
+        // res.status(200).json({ message: "User is logged in",  payload: foundUser })
     }
     catch (err) {
         console.log(err)
