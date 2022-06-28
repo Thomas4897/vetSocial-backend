@@ -99,7 +99,7 @@ const userLogin = async (req, res) => {
     const { email, password } = req.body
 
     try {
-        const foundUser = await User.findOne({ email: email }).populate('postHistory')
+        const foundUser = await User.findOne({ email: email }).populate('postHistory').populate('commentHistory')
         if(foundUser === null) throw { message: "Email not found!" }
         const comparedPassword = await bcrypt.compare(password, foundUser.password)
         if(!comparedPassword) throw { mesaage: "Password does not match!" }
