@@ -9,7 +9,7 @@ const createPost = async (req, res) => {
     const { post } = req.body
 
     try {
-        const foundUser = await User.findOne({ _id: decodedToken._id })
+        const foundUser = await User.findOne({ _id: decodedToken._id });
         // const foundUser = await User.findById(id)
         if(!foundUser) throw { message: "User not found!" }
 
@@ -18,9 +18,10 @@ const createPost = async (req, res) => {
             postOwner: foundUser._id
         })
         const savedPost = await newPost.save()
-        foundUser.postHistory.push(savedPost.id)
+        foundUser.postHistory.push(savedPost.id);
         await foundUser.save()
-        res.status(200).json({ message: "Saved new post!", payload: savedPost })
+        const updatedUser = await User.findOne({ _id: decodedToken._id }).populate({ path: 'postHistory', populate: { path: 'commentHistory'  } }).populate({ path: 'commentHistory', populate: { path: 'commentOwner' }})
+        res.status(200).json({ message: "Saved new post!", payload: updatedUser, savedPost: savedPost })
     }
     catch (err) {
         console.log(err)
@@ -48,7 +49,7 @@ const updatePost = async (req, res) => {
     try {
         const foundPost = await Post.findById(id).populate("postOwner")
         if(!foundPost) throw { message: "Post not found!" }
-        const foundUser = await User.findOne({ email: decodedToken.email })
+        const foundUser = await User.findOne({ _id: decodedToken._id })
         if(!foundUser) throw { message: "User not found!" }
 
         if(foundUser._id.toString() === foundPost.postOwner._id.toString()) {
@@ -73,7 +74,7 @@ const deletePost = async (req, res) => {
     try {
         const foundPost = await Post.findById(id).populate("postOwner")
         if(!foundPost) throw { message: "Post not found!" }
-        const foundUser = await User.findOne({ email: decodedToken.email })
+        const foundUser = await User.findOne({ _id: decodedToken._id })
         if(!foundUser) throw { message: "User not found!" }
 
         if(foundUser._id.toString() === foundPost.postOwner._id.toString()) {

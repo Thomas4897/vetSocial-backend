@@ -40,7 +40,7 @@ const updateUser = async (req, res) => {
         const hashPassword = await bcrypt.hash(password, salt)
         password = hashPassword
 
-        const updateUser = await User.findOneAndUpdate({ email: decodedToken.email }, req.body, { new: true })
+        const updateUser = await User.findOneAndUpdate({ _id: decodedToken._id }, req.body, { new: true })
         // const updateUser = await User.findOneAndUpdate(id, req.body, { new: true })
         if(updateUser === null) throw new Error("No user with id found!")
         res.status(200).json({ message: "Updated user", payload: updateUser })
@@ -57,7 +57,7 @@ const getCurrentUser = async (req, res) => {
     // const { id } = req.params
 
     try {
-        const foundUser = await User.findOne({ email: decodedToken.email })
+        const foundUser = await User.findOne({ _id: decodedToken._id })
         // const foundUser = await User.findById(id)
         res.status(200).json({ message: "Current user", payload: foundUser })
     }
@@ -99,7 +99,7 @@ const userLogin = async (req, res) => {
     const { email, password } = req.body
 
     try {
-        const foundUser = await User.findOne({ email: email }).populate('postHistory').populate('commentHistory')
+        const foundUser = await User.findOne({ email: email }).populate({ path: 'postHistory', populate: { path: 'postOwner' }}).populate({ path: 'postHistory', populate: { path: 'commentHistory', populate: { path: 'commentOwner' } }})
         if(foundUser === null) throw { message: "Email not found!" }
         const comparedPassword = await bcrypt.compare(password, foundUser.password)
         if(!comparedPassword) throw { mesaage: "Password does not match!" }

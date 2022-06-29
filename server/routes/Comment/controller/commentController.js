@@ -11,7 +11,7 @@ const createComment = async (req, res) => {
     try {
         const foundPost = await Post.findById(id)
         if(!foundPost) throw { message: "Post not found" }
-        const foundUser = await User.findOne({ email: decodedToken.email })
+        const foundUser = await User.findOne({ _id: decodedToken._id })
         if(!foundUser) throw { message: "User not found" }
 
         const newComment = new Comment({
@@ -24,7 +24,8 @@ const createComment = async (req, res) => {
         foundPost.commentHistory.push(savedComment.id)
         await foundUser.save()
         await foundPost.save()
-        res.status(200).json({ message: "Saved new comment", payload: savedComment })
+        const updatedUser = await User.findOne({ _id: decodedToken._id }).populate({ path: 'postHistory', populate: { path: 'commentHistory'  } }).populate({ path: 'commentHistory', populate: { path: 'commentOwner' }})
+        res.status(200).json({ message: "Saved new comment", payload: updatedUser, savedComment: savedComment })
     }
     catch (err) {
         console.log(err)
@@ -37,7 +38,7 @@ const getAllComments = async (req, res) => {
     const decodedToken = res.locals.decodedToken
 
     try {
-        const foundUser = await User.findOne({ email: decodedToken.email })
+        const foundUser = await User.findOne({ _id: decodedToken._id })
         if(!foundUser) throw { message: "User not found!" }
         const foundComments = await Comment.find({ commentOwner: foundUser._id }).populate("commentOwner")
         res.status(200).json({ payload: foundComments })
@@ -56,7 +57,7 @@ const updateComment = async (req, res) => {
     try {
         const foundComment = await Comment.findById(id).populate("commentOwner")
         if(!foundComment) throw { message: "Comment not found" }
-        const foundUser = await User.findOne({ email: decodedToken.email })
+        const foundUser = await User.findOne({ _id: decodedToken._id })
         if(!foundUser) throw { message: "User not found" }
 
         if(foundComment.commentOwner._id.toString() === foundUser._id.toString()) {
@@ -85,7 +86,7 @@ const deleteComment = async (req, res) => {
         if(!deletedComment) throw { message: "Comment not found" }
         const foundPost = await Post.findById(deletedComment.post)
         if(!foundPost) throw { message: "Post not found" }
-        const foundUser = await User.findOne({ email: decodedToken.email })
+        const foundUser = await User.findOne({ _id: decodedToken._id })
         if(!foundUser) throw { message: "User not found" }
 
         if(foundComment.commentOwner._id.toString() === foundUser._id.toString()) {
