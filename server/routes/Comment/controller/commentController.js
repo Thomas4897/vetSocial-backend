@@ -24,7 +24,7 @@ const createComment = async (req, res) => {
         foundPost.commentHistory.push(savedComment.id)
         await foundUser.save()
         await foundPost.save()
-        const updatedUser = await User.findOne({ _id: decodedToken._id }).populate({ path: 'postHistory', populate: { path: 'commentHistory'  } }).populate({ path: 'commentHistory', populate: { path: 'commentOwner' }})
+        const updatedUser = await User.findOne({ _id: decodedToken._id }).populate({ path: 'postHistory', populate: { path: 'postOwner' }}).populate({ path: 'postHistory', populate: { path: 'commentHistory', populate: { path: 'commentOwner' } }})
         res.status(200).json({ message: "Saved new comment", payload: updatedUser, savedComment: savedComment })
     }
     catch (err) {
