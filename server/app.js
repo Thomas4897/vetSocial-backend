@@ -8,7 +8,7 @@ var logger = require('morgan');
 const mongoose = require("mongoose")
 
 mongoose
-.connect(process.env.MONGODB_URI)
+.connect(process.env.MONGO_DB_CONNECTION_STRING)
 .then(() => console.log('Established a connection to the database'))
 .catch(err => console.log('Something went wrong when connecting to the database ', err))
 
@@ -24,7 +24,11 @@ var app = express();
 app.set('views', path.join(__dirname, 'views'));
 app.set('view engine', 'ejs');
 
-app.use(cors({ origin: 'http://localhost:3000' }))
+app.use(cors({
+  credentials: true,
+  origin: 'http://localhost:3000',
+}));
+
 app.use(logger('dev'));
 app.use(express.json());
 app.use(express.urlencoded({ extended: false }));

@@ -8,7 +8,7 @@ router.get('/', function(req, res, next) {
     res.send('Hello World from usersRouter')
 })
 
-router.post('/create-user', checkIsEmpty, validateCreateUser, createUser)
+router.post('/create-user', createUser)
 router.put('/update-user', checkIsEmpty, validateUpdateUser, jwtMiddleware, updateUser)
 router.get('/current-user', jwtMiddleware, getCurrentUser)
 router.get('/all-users', getAllUsers)
